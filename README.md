@@ -1,4 +1,4 @@
-# dib (Directory Interavtive Browse)
+# dib (Directory Interactive Browse)
 
 ## The CLI command
 
