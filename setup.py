@@ -15,7 +15,7 @@ setup(
     maintainer_email="viktor.david.berg@gmail.com",
     license="",
     packages=["dib"],
-    url="http://github.com/dynamist/sgit",
+    url="http://github.com/naestia/dib",
     entry_points={
         "console_scripts": [
             "dib = dib.cli:cli_entrypoint",
