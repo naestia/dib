@@ -1,4 +1,4 @@
-# dvb
+# dib (Directory Interactive Browse)
 
 ## The CLI command
 
