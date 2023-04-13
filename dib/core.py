@@ -51,7 +51,6 @@ class DIB():
         for string in self.string_list:
 
             if len(string) > 1:
-                self.start_time = time.time()
                 self.path_list = self._search_file_system(string)
                 self.path_dict[string] = self.path_list
                 self.path_list = []
