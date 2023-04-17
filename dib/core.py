@@ -4,6 +4,7 @@
 import logging
 import os
 import sys
+from multiprocessing import Pool
 from pathlib import Path
 
 # subgit imports
@@ -13,6 +14,8 @@ from dib.constants import *
 import curses
 from curses import wrapper
 
+import time
+
 
 log = logging.getLogger(__name__)
 
@@ -20,40 +23,57 @@ log = logging.getLogger(__name__)
 class DIB():
     def __init__(self):
         self.working_dir = Path.cwd()
+        self.ignore_directory = [
+            ".git",
+            ".tox",
+            "__pycache__",
+            ".idea",
+            ".virtualenvs",
+            ".local",
+            ".oh-my-zsh",
+            ".cache"
+        ]
 
     def run(self):
         return wrapper(self.main)
+    
+    def _create_iterable_path_search(self, path):
+        for item in self.ignore_directory:
+            if item not in str(path):
+                return path
 
-    def _search_file_system(self, match):
-        path_list = []
-        for path in self.working_dir.glob("**/*"):
-            ignored_path = False
-            for item in self.ignore_directory:
-                if item in str(path):
-                    ignored_path = True
+    def _search_file_system(self, string_list):
+        for string in string_list:
+            self.path_list = []
+            for path in self.iter_list:
+                ignored_path = False
+                for item in self.ignore_directory:
+                    if item in str(path):
+                        ignored_path = True
 
-            if path.is_dir() and not ignored_path:
-                path_str = str(path)
-                relative_path = path_str.replace(str(self.working_dir), "")
+                if path.is_dir() and not ignored_path:
+                    path_str = str(path)
+                    relative_path = path_str.replace(str(self.working_dir), "")
 
-                if path_str != str(self.working_dir):
+                    if path_str != str(self.working_dir):
 
-                    if match in relative_path:
+                        if string in relative_path:
 
-                        if relative_path and relative_path not in path_list:
-                            path_list.append(relative_path)
+                            if relative_path and relative_path not in self.path_list:
+                                self.path_list.append(relative_path)
 
-        return path_list
+            self.path_dict[string] = self.path_list
+
+        return self.path_dict
 
     def _get_match(self):
         self.match_list = []
         self.bad_match = False
+        self.path_dict = self._search_file_system(self.string_list)
+
         for string in self.string_list:
 
             if len(string) > 1:
-                self.path_list = self._search_file_system(string)
-                self.path_dict[string] = self.path_list
-                self.path_list = []
 
                 for match in self.path_dict.get(string):
                     all_match = True
@@ -110,12 +130,7 @@ class DIB():
         curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)
         curses.init_pair(2, curses.COLOR_RED, self.screen.getbkgd())
 
-        self.ignore_directory = [
-            ".git",
-            ".tox",
-            "__pycache__",
-            ".idea"
-        ]
+        
 
         while True:
             key = self.screen.getkey()
@@ -189,5 +204,10 @@ class DIB():
             self.screen.addstr(0, 0, self.string_to_match)
 
     def ls(self, flags=None):
+
+        with Pool(8) as pool:
+             self.iter_list = pool.map(self._create_iterable_path_search, Path(self.working_dir).glob("**/*"))
+
+        print(len(self.iter_list))
         path = self.run()
-        os.system(f"ls -al .{path}")
+        os.system(f"ls {flags} .{path}")

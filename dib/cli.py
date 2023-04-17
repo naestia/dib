@@ -30,7 +30,7 @@ Usage:
     dib cd [options]
 
 Options:
-    -h, --help                 Show this help message and exit
+    -h, --help       Show this help message and exit
 """
 
 
@@ -39,7 +39,9 @@ Usage:
     dib ls [options]
 
 Options:
-    -h, --help                 Show this help message and exit
+    -a, --all        List all files in a directory, includes hidden "." files (as ls -a)
+    -l               Use a long list format (as ls -l)
+    -h, --help       Show this help message and exit
 """
 
 
@@ -119,7 +121,15 @@ def run(cli_args, sub_args):
         retcode = core.cd()
 
     if cli_args["<command>"] == "ls":
-        retcode = core.ls()
+        flags = ""
+        if sub_args["--all"] and sub_args["-l"]:
+            flags = "-al"
+        elif sub_args["--all"]:
+            flags = "-a"
+        elif sub_args["-l"]:
+            flags = "-l"
+
+        retcode = core.ls(flags)
 
     if cli_args["<command>"] == "find":
         retcode = core.find()
