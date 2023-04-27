@@ -6,6 +6,7 @@ import os
 import sys
 from multiprocessing import Pool
 from pathlib import Path
+import threading
 
 # subgit imports
 from dib.constants import *
@@ -23,6 +24,7 @@ log = logging.getLogger(__name__)
 class DIB():
     def __init__(self):
         self.working_dir = Path.cwd()
+        self.iter_list = []
         self.ignore_directory = [
             ".git",
             ".tox",
@@ -37,15 +39,19 @@ class DIB():
     def run(self):
         return wrapper(self.main)
     
-    def _create_iterable_path_search(self, path):
-        for item in self.ignore_directory:
-            if item not in str(path):
-                return path
+    def _create_iterable_path_search(self):
+        path_list = []
+        for item in Path(self.working_dir).glob("**/*"):
+            path_list.append(item)
 
-    def _search_file_system(self, string_list):
+        self.iter_list = path_list
+
+    def _search_file_system(self, string_list):        
         for string in string_list:
             self.path_list = []
+
             for path in self.iter_list:
+
                 ignored_path = False
                 for item in self.ignore_directory:
                     if item in str(path):
@@ -103,12 +109,12 @@ class DIB():
             else:
                 self.pad.addstr(index, 0, item)
                 for i in self.string_list:
-                    if len(i) > 1:
-                        if len(self.current_word) > 1:
-                            self.starting_index = item.find(i[0])
-                        self.pad.attron(curses.color_pair(2))
-                        self.pad.addstr(index, self.starting_index, i)
-                        self.pad.attroff(curses.color_pair(2))
+                    #if len(i) > 1:
+                    #if len(self.current_word) > 1:
+                    self.starting_index = item.find(i)
+                    self.pad.attron(curses.color_pair(2))
+                    self.pad.addstr(index, self.starting_index, i)
+                    self.pad.attroff(curses.color_pair(2))
 
                 self._refresh_pad()
 
@@ -192,22 +198,26 @@ class DIB():
             elif key == "\n":
                 if self.index_to_match >= 0:
                     if self.chosen_path:
-                        return self.chosen_path
+                        return self.chosen_path.replace(" ", "\ ")
 
                 elif self.current_word == "quit()":
                     sys.exit()
 
             self.debug_pad.clear()
-            self.debug_pad.addstr(f"String to match: {self.string_to_match} | Current word: {self.current_word}")
+            self.debug_pad.addstr(f"Path list: {self.string_to_match} | Current word: {self.current_word} | Length of list: {len(self.iter_list)}")
             self.debug_pad.refresh(0, 0, (self.height - 1), 0, self.height, self.width)
 
             self.screen.addstr(0, 0, self.string_to_match)
 
     def ls(self, flags=None):
 
-        with Pool(8) as pool:
-             self.iter_list = pool.map(self._create_iterable_path_search, Path(self.working_dir).glob("**/*"))
 
-        print(len(self.iter_list))
+        #for path in Path(self.working_dir).glob("**/*"):
+        #    self.iter_list.append(path)
+        #with Pool(8) as pool:
+        #     self.iter_list = pool.map(self._create_iterable_path_search, Path(self.working_dir).glob("**/*"))
+        t1 = threading.Thread(target=self._create_iterable_path_search)
+        t1.start()
+        t1.join()
         path = self.run()
         os.system(f"ls {flags} .{path}")
