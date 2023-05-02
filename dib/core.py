@@ -109,8 +109,6 @@ class DIB():
             else:
                 self.pad.addstr(index, 0, item)
                 for i in self.string_list:
-                    #if len(i) > 1:
-                    #if len(self.current_word) > 1:
                     self.starting_index = item.find(i)
                     self.pad.attron(curses.color_pair(2))
                     self.pad.addstr(index, self.starting_index, i)
