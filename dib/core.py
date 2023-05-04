@@ -4,9 +4,8 @@
 import logging
 import os
 import sys
-from multiprocessing import Pool
 from pathlib import Path
-import threading
+from subprocess import run
 
 # subgit imports
 from dib.constants import *
@@ -14,8 +13,6 @@ from dib.constants import *
 # 3rd party imports
 import curses
 from curses import wrapper
-
-import time
 
 
 log = logging.getLogger(__name__)
@@ -38,7 +35,7 @@ class DIB():
 
     def run(self):
         return wrapper(self.main)
-    
+
     def _create_iterable_path_search(self):
         path_list = []
         for item in Path(self.working_dir).glob("**/*"):
@@ -46,11 +43,14 @@ class DIB():
 
         self.iter_list = path_list
 
-    def _search_file_system(self, string_list):        
+    def _search_file_system(self, string_list):
+        if not self.new_list:
+            self.new_list = self.iter_list
+
         for string in string_list:
             self.path_list = []
 
-            for path in self.iter_list:
+            for path in self.new_list:
 
                 ignored_path = False
                 for item in self.ignore_directory:
@@ -66,7 +66,7 @@ class DIB():
                         if string in relative_path:
 
                             if relative_path and relative_path not in self.path_list:
-                                self.path_list.append(relative_path)
+                                self.path_list.append(str(path))
 
             self.path_dict[string] = self.path_list
 
@@ -124,7 +124,9 @@ class DIB():
         self.pad.refresh(0, 0, 2, 0, (self.height - 2), self.width)
 
     def main(self, stdscr):
+        self._create_iterable_path_search()
         self.screen = stdscr
+        self.new_list = []
         self.string_to_match = ""
         self.bad_match = False
         self.index_to_match = -1
@@ -133,11 +135,8 @@ class DIB():
         self.current_word = ""
         curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)
         curses.init_pair(2, curses.COLOR_RED, self.screen.getbkgd())
-
-        
-
         while True:
-            key = self.screen.getkey()
+            key = self.screen.getch()
             self.height, self.width = self.screen.getmaxyx()
             self.pad = curses.newpad((self.height - 2), self.width)
             self.debug_pad = curses.newpad(1, self.width)
@@ -148,9 +147,9 @@ class DIB():
             if not self.string_to_match:
                 self.index_to_match = -1
 
-            if key[:3] != "KEY" and key not in IGNORE_KEYS:
-                self.string_to_match += key
-                self.current_word += key
+            if key != "KEY" and key not in IGNORE_KEYS:
+                self.string_to_match += chr(key)
+                self.current_word += chr(key)
                 self.string_list = self.string_to_match.split(" ")
                 for item in self.string_list:
                     if not item:
@@ -158,9 +157,9 @@ class DIB():
 
                 self._update()
 
-            if key == "KEY_BACKSPACE":
-
+            if key == 127:
                 self.string_to_match = self.string_to_match[:-1]
+
                 if self.string_to_match:
                     if self.string_to_match[-1] != " " and self.string_to_match.rfind(" ") != -1:
                         self.current_word = self.string_to_match[self.string_to_match.rfind(" "):]
@@ -170,52 +169,55 @@ class DIB():
                     self.current_word = ""
 
                 self.string_list = self.string_to_match.split(" ")
+
                 for item in self.string_list:
+
                     if not item:
                         self.string_list.remove(item)
 
                 self.screen.clear()
                 self.screen.refresh()
                 self._update()
-
             elif key == " ":
                 self.current_word = ""
                 self.index_to_match = -1
                 # TODO: self.starting_index = 0
-
-            elif key == "KEY_DOWN":
+            elif key == 258:
                 if self.index_to_match < len(self.match_list) - 1:
                     self.index_to_match += 1
                 self._update_match_text()
-
-            elif key == "KEY_UP":
+            elif key == 259:
                 if self.index_to_match > 0:
                     self.index_to_match -= 1
                 self._update_match_text()
-
-            elif key == "\n":
+            elif key == 10:
                 if self.index_to_match >= 0:
                     if self.chosen_path:
                         return self.chosen_path.replace(" ", "\ ")
-
                 elif self.current_word == "quit()":
                     sys.exit()
 
             self.debug_pad.clear()
-            self.debug_pad.addstr(f"Path list: {self.string_to_match} | Current word: {self.current_word} | Length of list: {len(self.iter_list)}")
+            self.debug_pad.addstr(f"Path list:  | Path dict: {len(self.iter_list)}")
             self.debug_pad.refresh(0, 0, (self.height - 1), 0, self.height, self.width)
-
             self.screen.addstr(0, 0, self.string_to_match)
 
     def ls(self, flags=None):
-
-
-        #for path in Path(self.working_dir).glob("**/*"):
-        #    self.iter_list.append(path)
-        #with Pool(8) as pool:
-        #     self.iter_list = pool.map(self._create_iterable_path_search, Path(self.working_dir).glob("**/*"))
-        t1 = threading.Thread(target=self._create_iterable_path_search)
-        t1.start()
-        t1.join()
         path = self.run()
-        os.system(f"ls {flags} .{path}")
+        return os.system(f"ls {flags} {path}")
+
+    def cd(self):
+        script = Path.cwd() / "dib_run.sh"
+        absolute = str(script.resolve())
+        
+        path = self.run()
+        content = "#!/bin/bash\n\ncd ..\n$SHELL"
+        script.touch()
+        script.chmod(0o744)
+
+        with script.open(mode="w", encoding="utf-8") as file:
+            file.write(content)
+
+        run(["cd", "-L", path])
+        #run(["./dib_run.sh"], shell=True)
+        # script.remove

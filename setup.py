@@ -1,7 +1,10 @@
+from pathlib import Path
 from setuptools import setup
 
 with open("README.md") as f:
     readme = f.read()
+
+project_directory = Path.home() / ".dib"
 
 setup(
     name="dib",
@@ -61,3 +64,5 @@ setup(
         "Natural Language :: English",
     ],
 )
+if not project_directory.exists():
+    project_directory.mkdir()
