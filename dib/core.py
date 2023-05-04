@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 from subprocess import run
 
-# subgit imports
+# dib imports
 from dib.constants import *
 
 # 3rd party imports
@@ -90,7 +90,8 @@ class DIB():
                     if match not in self.match_list:
                         if len(self.match_list) == self.height - 4:
                             break
-                        elif all_match:
+
+                        if all_match:
                             self.match_list.append(match)
 
                 if not self.bad_match:

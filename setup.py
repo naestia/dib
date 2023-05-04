@@ -12,6 +12,7 @@ def create_cd_script():
             file.write("#!/bin/bash\n\ncd $1\n$SHELL")
             script.chmod(0o744)
 
+
 with open("README.md") as f:
     readme = f.read()
 
