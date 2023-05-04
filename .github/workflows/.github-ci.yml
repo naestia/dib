@@ -1,9 +1,9 @@
 name: Simple flake8
 
 on:
-  pull_request:
+  push:
     branches:
-      - master
+      - '!master'
 
 jobs:
   Flake8-test:
@@ -12,7 +12,7 @@ jobs:
     steps:
       - name: Install dib
         shell: bash
-        run: pip install -e ".[dev,test]"
+        run: ls -al
 
       - name: Run flake8
         shell: bash
