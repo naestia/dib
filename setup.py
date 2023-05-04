@@ -1,4 +1,17 @@
+from pathlib import Path
 from setuptools import setup
+
+project_directory = Path.home() / ".dib"
+script = Path(project_directory) / "run_cd.sh"
+
+
+def create_cd_script():
+    if not script.exists():
+        script.touch()
+        with script.open(mode="w", encoding="utf-8") as file:
+            file.write("#!/bin/bash\n\ncd $1\n$SHELL")
+            script.chmod(0o744)
+
 
 with open("README.md") as f:
     readme = f.read()
@@ -61,3 +74,7 @@ setup(
         "Natural Language :: English",
     ],
 )
+
+if not project_directory.exists():
+    project_directory.mkdir()
+    create_cd_script()

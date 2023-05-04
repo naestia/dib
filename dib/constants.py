@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
 
 IGNORE_KEYS = [
-    "KEY_UP"
-    "KEY_DOWN",
-    "KEY_LEFT",
-    "KEY_RIGHT"
-    "KEY_RESIZE",
+    259,
+    258,
+    260,
+    261,
+    263,
+    410,
     "KEY_BACKSPACE",
-    "\n"
+    10,
+    "^?",
+    127
 ]
 
 __all__ = [

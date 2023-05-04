@@ -3,3 +3,7 @@
 .idea
 .pytest_cache
 *backup.py
+*pyvenv.cfg
+*bin*
+*lib64
+

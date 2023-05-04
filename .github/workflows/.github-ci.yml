@@ -1,0 +1,20 @@
+name: Simple flake8
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  Flake8-test:
+    name: Install & run flake8 test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install dib
+        shell: bash
+        run: pip install -e ".[dev,test]"
+
+      - name: Run flake8
+        shell: bash
+        run: flake8 -v
+
