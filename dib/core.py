@@ -157,7 +157,7 @@ class DIB():
 
                 self._update()
 
-            if key == 127:
+            if key == 127 or key == 263:
                 self.string_to_match = self.string_to_match[:-1]
 
                 if self.string_to_match:
@@ -198,7 +198,7 @@ class DIB():
                     sys.exit()
 
             self.debug_pad.clear()
-            self.debug_pad.addstr(f"Path list:  | Path dict: {len(self.iter_list)}")
+            self.debug_pad.addstr(f"Key: {key} | Path dict: {len(self.iter_list)}")
             self.debug_pad.refresh(0, 0, (self.height - 1), 0, self.height, self.width)
             self.screen.addstr(0, 0, self.string_to_match)
 
@@ -207,17 +207,8 @@ class DIB():
         return os.system(f"ls {flags} {path}")
 
     def cd(self):
-        script = Path.cwd() / "dib_run.sh"
-        absolute = str(script.resolve())
-        
         path = self.run()
-        content = "#!/bin/bash\n\ncd ..\n$SHELL"
-        script.touch()
-        script.chmod(0o744)
-
-        with script.open(mode="w", encoding="utf-8") as file:
-            file.write(content)
-
-        run(["cd", "-L", path])
-        #run(["./dib_run.sh"], shell=True)
-        # script.remove
+        dib_folder = Path.home() / ".dib"
+        script = "run_cd.sh"
+        os.chdir(dib_folder)
+        run(["sh", script, path])

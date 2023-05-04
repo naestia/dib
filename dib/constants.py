@@ -5,6 +5,7 @@ IGNORE_KEYS = [
     258,
     260,
     261,
+    263,
     410,
     "KEY_BACKSPACE",
     10,
