@@ -1,7 +1,11 @@
 name: Simple flake8
 
+<<<<<<< HEAD
 on:
   workflow_run:
+=======
+on: workflow_dispatch
+>>>>>>> 01f3a3c (Update .github-ci.yml)
 
 jobs:
   Flake8-test:

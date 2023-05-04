@@ -23,7 +23,7 @@ class DIB():
         self.working_dir = Path.cwd()
         self.iter_list = []
         self.ignore_directory = [
-            ".git",
+            ".git/",
             ".tox",
             "__pycache__",
             ".idea",
