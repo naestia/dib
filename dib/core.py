@@ -12,6 +12,7 @@ from dib.constants import *
 
 # 3rd party imports
 import curses
+import pyperclip
 from curses import wrapper
 
 
@@ -44,31 +45,46 @@ class DIB():
         self.iter_list = path_list
 
     def _search_file_system(self, string_list):
-        if not self.new_list:
-            self.new_list = self.iter_list
-
         for string in string_list:
             self.path_list = []
 
-            for path in self.new_list:
+            if len(string) > 1:
+                if self.file_type == "d":
+                    for path in self.working_dir.rglob(f"*{string}*/**"):
+                        ignored_path = False
+                        for item in self.ignore_directory:
+                            if item in str(path):
+                                ignored_path = True
 
-                ignored_path = False
-                for item in self.ignore_directory:
-                    if item in str(path):
-                        ignored_path = True
+                        if path.is_dir() and not ignored_path:
+                            path_str = str(path)
+                            relative_path = path_str.replace(str(self.working_dir), "")
 
-                if path.is_dir() and not ignored_path:
-                    path_str = str(path)
-                    relative_path = path_str.replace(str(self.working_dir), "")
+                            if path_str != str(self.working_dir):
 
-                    if path_str != str(self.working_dir):
+                                if string in relative_path:
 
-                        if string in relative_path:
+                                    if relative_path and relative_path not in self.path_list:
+                                        self.path_list.append(str(path))
+                elif self.file_type == "f":
+                    for path in self.working_dir.glob(f"**/*{string}*"):
+                        ignored_path = False
+                        for item in self.ignore_directory:
+                            if item in str(path):
+                                ignored_path = True
 
-                            if relative_path and relative_path not in self.path_list:
-                                self.path_list.append(str(path))
+                        if path.is_file() and not ignored_path:
+                            path_str = str(path)
+                            relative_path = path_str.replace(str(self.working_dir), "")
 
-            self.path_dict[string] = self.path_list
+                            if path_str != str(self.working_dir):
+
+                                if string in relative_path:
+
+                                    if relative_path and relative_path not in self.path_list:
+                                        self.path_list.append(str(path))
+
+                self.path_dict[string] = self.path_list
 
         return self.path_dict
 
@@ -110,7 +126,10 @@ class DIB():
             else:
                 self.pad.addstr(index, 0, item)
                 for i in self.string_list:
-                    self.starting_index = item.find(i)
+                    if self.file_type == "d":
+                        self.starting_index = item.find(i)
+                    else:
+                        self.starting_index = item.rfind(i)
                     self.pad.attron(curses.color_pair(2))
                     self.pad.addstr(index, self.starting_index, i)
                     self.pad.attroff(curses.color_pair(2))
@@ -125,7 +144,6 @@ class DIB():
         self.pad.refresh(0, 0, 2, 0, (self.height - 2), self.width)
 
     def main(self, stdscr):
-        self._create_iterable_path_search()
         self.screen = stdscr
         self.new_list = []
         self.string_to_match = ""
@@ -137,6 +155,7 @@ class DIB():
         curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)
         curses.init_pair(2, curses.COLOR_RED, self.screen.getbkgd())
         while True:
+            # Record every keystroke the user does
             key = self.screen.getch()
             self.height, self.width = self.screen.getmaxyx()
             self.pad = curses.newpad((self.height - 2), self.width)
@@ -198,18 +217,30 @@ class DIB():
                 elif self.current_word == "quit()":
                     sys.exit()
 
-            self.debug_pad.clear()
-            self.debug_pad.addstr(f"Key: {key} | Path dict: {len(self.iter_list)}")
-            self.debug_pad.refresh(0, 0, (self.height - 1), 0, self.height, self.width)
             self.screen.addstr(0, 0, self.string_to_match)
+            self.debug_pad.clear()
+            self.debug_pad.addstr(f"String to match: {self.string_to_match}")
+            self.debug_pad.refresh(0, 0, (self.height - 1), 0, self.height, self.width)
 
     def ls(self, flags=None):
+        self.file_type = "d"
         path = self.run()
         return os.system(f"ls {flags} {path}")
 
     def cd(self):
+        self.file_type = "d"
         path = self.run()
         dib_folder = Path.home() / ".dib"
         script = "run_cd.sh"
         os.chdir(dib_folder)
         run(["sh", script, path])
+
+    def find(self, flag):
+        self.file_type = flag
+        path = self.run()
+        print(f"\tFound: {path}")
+        answer = input("Would you like to copy path to clipboard? [Y/n] >> ").upper()
+        if answer == "Y":
+            pyperclip.copy(str(path))
+        else:
+            return 0

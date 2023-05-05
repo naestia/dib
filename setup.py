@@ -36,6 +36,7 @@ setup(
     install_requires=[
         "docopt>=0.6.2",
         "packaging>=21.3",
+        "pyperclip>=1.8.2",
     ],
     python_requires=">=3.8",
     extras_require={

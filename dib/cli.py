@@ -47,10 +47,11 @@ Options:
 
 sub_find_args = """
 Usage:
-    dib find [options]
+    dib find (--type=<t>)
 
 Options:
-    -h, --help                 Show this help message and exit
+    -t=<t>, --type=<t>       Defines either 'file' or 'dir'
+    -h, --help       Show this help message and exit
 """
 
 
@@ -132,7 +133,19 @@ def run(cli_args, sub_args):
         retcode = core.ls(flags)
 
     if cli_args["<command>"] == "find":
-        retcode = core.find()
+        flag = ""
+
+        if sub_args["--type"] == "f":
+            flag = "f"
+        elif sub_args["--type"] == "d":
+            flag = "d"
+        else:
+            log.error("Option: '--type' must be either 'f' for 'file', or 'd' for 'directory'")
+            log.error("Exiting with exitcode 1")
+            return 1
+
+        if flag:
+            retcode = core.find(flag)
 
     return retcode
 
