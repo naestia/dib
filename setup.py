@@ -47,10 +47,6 @@ setup(
         ],
         "dev": [
             "pylint",
-            "ptpython",
-        ],
-        "validation": [
-            "pykwalify",
         ],
     },
     classifiers=[
