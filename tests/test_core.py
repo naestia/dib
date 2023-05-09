@@ -41,14 +41,14 @@ def test_temporary_directory():
             [f'{root.parents[0]}/tests/test/python'],
         'test':
             [f'{root.parents[0]}/tests/test',
-             f'{root.parents[0]}/tests/test/terraform',
+             f'{root.parents[0]}/tests/test/foo',
              f'{root.parents[0]}/tests/test/python',
-             f'{root.parents[0]}/tests/test/foo']
+             f'{root.parents[0]}/tests/test/terraform']
     }
     assert dib._search_file_system(second_mock_string_list) == {
         'fo':
-            [f'{root.parents[0]}/tests/test/terraform',
-             f'{root.parents[0]}/tests/test/foo'],
+            [f'{root.parents[0]}/tests/test/foo',
+             f'{root.parents[0]}/tests/test/terraform'],
         'ter':
             [f'{root.parents[0]}/tests/test/terraform']
     }

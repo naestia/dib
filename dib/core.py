@@ -82,7 +82,7 @@ class DIB():
                                     if relative_path and relative_path not in self.path_list:
                                         self.path_list.append(str(path))
 
-                path_dict[string] = self.path_list
+                path_dict[string] = list(sorted(self.path_list))
 
         return dict(sorted(path_dict.items()))
 
