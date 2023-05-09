@@ -16,7 +16,7 @@ with open("README.md") as f:
     readme = f.read()
 
 setup(
-    name="dib",
+    name="dibrowse",
     version="0.0.1",
     description="CLI tool ",
     long_description=readme,
@@ -26,7 +26,7 @@ setup(
     maintainer="Viktor Berg",
     maintainer_email="viktor.david.berg@gmail.com",
     license="",
-    packages=["dib"],
+    packages=["dibrowse"],
     url="http://github.com/naestia/dib",
     entry_points={
         "console_scripts": [
