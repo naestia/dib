@@ -23,6 +23,7 @@ jobs:
 
   Install-and-test:
     name: Install dib & run pytest
+    needs: Flake8-test
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout repo
