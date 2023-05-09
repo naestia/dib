@@ -1,11 +1,11 @@
 name: Simple flake8
 
-on: workflow_dispatch
+on: [workflow_dispatch, push, pull_request]
 
 jobs:
   Flake8-test:
     name: Install & run flake8 test
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Install flake8
         shell: bash
@@ -21,3 +21,20 @@ jobs:
         shell: bash
         run: flake8 -v
 
+  Install-and-test:
+    name: Install dib & run pytest
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          repository: naestia/dib
+          path: .
+      
+      - name: Install dib
+        shell: bash
+        run: pip install ".[dev,test]"
+      
+      - name: Run pytest
+        shell: bash
+        run: pytest -vv .

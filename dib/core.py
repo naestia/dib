@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 class DIB():
     def __init__(self):
         self.working_dir = Path.cwd()
+        self.file_type = "d"
         self.iter_list = []
         self.ignore_directory = [
             ".git/",
@@ -37,14 +38,8 @@ class DIB():
     def run(self):
         return wrapper(self.main)
 
-    def _create_iterable_path_search(self):
-        path_list = []
-        for item in Path(self.working_dir).glob("**/*"):
-            path_list.append(item)
-
-        self.iter_list = path_list
-
     def _search_file_system(self, string_list):
+        path_dict = {}
         for string in string_list:
             self.path_list = []
 
@@ -84,9 +79,9 @@ class DIB():
                                     if relative_path and relative_path not in self.path_list:
                                         self.path_list.append(str(path))
 
-                self.path_dict[string] = self.path_list
+                path_dict[string] = self.path_list
 
-        return self.path_dict
+        return path_dict
 
     def _get_match(self):
         self.match_list = []
@@ -126,6 +121,7 @@ class DIB():
             else:
                 self.pad.addstr(index, 0, item)
                 for i in self.string_list:
+
                     if self.file_type == "d":
                         self.starting_index = item.find(i)
                     else:
@@ -223,12 +219,10 @@ class DIB():
             self.debug_pad.refresh(0, 0, (self.height - 1), 0, self.height, self.width)
 
     def ls(self, flags=None):
-        self.file_type = "d"
         path = self.run()
         return os.system(f"ls {flags} {path}")
 
     def cd(self):
-        self.file_type = "d"
         path = self.run()
         dib_folder = Path.home() / ".dib"
         script = "run_cd.sh"
