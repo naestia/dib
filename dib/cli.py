@@ -27,7 +27,7 @@ Options:
 
 sub_cd_args = """
 Usage:
-    dib cd [options]
+    dib cd [options] [<path>]
 
 Options:
     -h, --help       Show this help message and exit
@@ -36,7 +36,7 @@ Options:
 
 sub_ls_args = """
 Usage:
-    dib ls [options]
+    dib ls [options] [<path>]
 
 Options:
     -a, --all        List all files in a directory, includes hidden "." files (as ls -a)
@@ -47,11 +47,11 @@ Options:
 
 sub_find_args = """
 Usage:
-    dib find (--type=<t>)
+    dib find (--type=<t>) [<path>]
 
 Options:
     -t=<t>, --type=<t>       Defines either 'file' or 'dir'
-    -h, --help       Show this help message and exit
+    -h, --help               Show this help message and exit
 """
 
 
@@ -116,7 +116,7 @@ def run(cli_args, sub_args):
 
     from dib.core import DIB
 
-    core = DIB()
+    core = DIB(current_dir=sub_args.get("<path>"))
 
     if cli_args["<command>"] == "cd":
         retcode = core.cd()

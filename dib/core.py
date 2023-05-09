@@ -20,10 +20,13 @@ log = logging.getLogger(__name__)
 
 
 class DIB():
-    def __init__(self):
-        self.working_dir = Path.cwd()
+    def __init__(self, current_dir=None):
+        if not current_dir:
+            self.current_dir = Path.cwd()
+        else:
+            self.current_dir = Path(current_dir)
+
         self.file_type = "d"
-        self.iter_list = []
         self.ignore_directory = [
             ".git/",
             ".tox",
@@ -45,7 +48,7 @@ class DIB():
 
             if len(string) > 1:
                 if self.file_type == "d":
-                    for path in self.working_dir.rglob(f"*{string}*/**"):
+                    for path in self.current_dir.rglob(f"*{string}*/**"):
                         ignored_path = False
                         for item in self.ignore_directory:
                             if item in str(path):
@@ -53,16 +56,16 @@ class DIB():
 
                         if path.is_dir() and not ignored_path:
                             path_str = str(path)
-                            relative_path = path_str.replace(str(self.working_dir), "")
+                            relative_path = path_str.replace(str(self.current_dir), "")
 
-                            if path_str != str(self.working_dir):
+                            if path_str != str(self.current_dir):
 
                                 if string in relative_path:
 
                                     if relative_path and relative_path not in self.path_list:
                                         self.path_list.append(str(path))
                 elif self.file_type == "f":
-                    for path in self.working_dir.glob(f"**/*{string}*"):
+                    for path in self.current_dir.glob(f"**/*{string}*"):
                         ignored_path = False
                         for item in self.ignore_directory:
                             if item in str(path):
@@ -70,18 +73,18 @@ class DIB():
 
                         if path.is_file() and not ignored_path:
                             path_str = str(path)
-                            relative_path = path_str.replace(str(self.working_dir), "")
+                            relative_path = path_str.replace(str(self.current_dir), "")
 
-                            if path_str != str(self.working_dir):
+                            if path_str != str(self.current_dir):
 
                                 if string in relative_path:
 
                                     if relative_path and relative_path not in self.path_list:
                                         self.path_list.append(str(path))
 
-                path_dict[string] = self.path_list
+                path_dict[string] = list(sorted(self.path_list))
 
-        return path_dict
+        return dict(sorted(path_dict.items()))
 
     def _get_match(self):
         self.match_list = []
