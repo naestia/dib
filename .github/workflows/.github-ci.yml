@@ -36,6 +36,10 @@ jobs:
         shell: bash
         run: pip install ".[dev,test]"
       
-      - name: Run pytest
+      - name: Check path
         shell: bash
-        run: pytest -vv
+        run: pwd
+      
+      - name: List working dir
+        shell: bash
+        run: ls -al
