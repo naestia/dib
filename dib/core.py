@@ -84,7 +84,7 @@ class DIB():
 
                 path_dict[string] = self.path_list
 
-        return path_dict
+        return dict(sorted(path_dict.items()))
 
     def _get_match(self):
         self.match_list = []
