@@ -24,7 +24,7 @@ def test_temporary_directory():
     This test will create a temporary directory tree and test the search
     function on this tree.
     """
-    root = os.path.dirname(os.path.abspath(__file__))
+    root = Path(os.path.dirname(os.path.abspath(__file__)))
     tmp_folder = Path(f"{root}/test")
     python_folder = Path(tmp_folder) / "python"
     terraform_folder = Path(tmp_folder) / "terraform"
@@ -38,19 +38,19 @@ def test_temporary_directory():
 
     assert dib._search_file_system(mock_string_list) == {
         'py':
-            ['/home/vibe/dev/dib/tests/test/python'],
+            [f'{root.parents[0]}/tests/test/python'],
         'test':
-            ['/home/vibe/dev/dib/tests/test',
-             '/home/vibe/dev/dib/tests/test/terraform',
-             '/home/vibe/dev/dib/tests/test/python',
-             '/home/vibe/dev/dib/tests/test/foo']
+            [f'{root.parents[0]}/tests/test',
+             f'{root.parents[0]}/tests/test/terraform',
+             f'{root.parents[0]}/tests/test/python',
+             f'{root.parents[0]}/tests/test/foo']
     }
     assert dib._search_file_system(second_mock_string_list) == {
         'fo':
-            ['/home/vibe/dev/dib/tests/test/terraform',
-             '/home/vibe/dev/dib/tests/test/foo'],
+            [f'{root.parents[0]}/tests/test/terraform',
+             f'{root.parents[0]}/tests/test/foo'],
         'ter':
-            ['/home/vibe/dev/dib/tests/test/terraform']
+            [f'{root.parents[0]}/tests/test/terraform']
     }
 
     # Cleanup of the tmp dir
