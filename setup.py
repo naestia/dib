@@ -26,7 +26,7 @@ setup(
     maintainer="Viktor Berg",
     maintainer_email="viktor.david.berg@gmail.com",
     license="",
-    packages=["dibrowse"],
+    packages=["dib"],
     url="http://github.com/naestia/dib",
     entry_points={
         "console_scripts": [
