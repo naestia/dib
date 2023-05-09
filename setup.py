@@ -58,7 +58,7 @@ setup(
         # "Development Status :: 6 - Mature",
         # "Development Status :: 7 - Inactive",
         "Intended Audience :: Developers",
-        "Operating System :: Linux",
+        "Operating System :: Unix",
         "License :: OSI Approved :: Apache Software License",
         "Environment :: Console",
         "Programming Language :: Python",
