@@ -6,9 +6,16 @@ The idea behind `dib` is to create a command that will interactively browse and 
 
 ## Install
 
+### Dev
+
 - Clone this repository and navigate to the cloned folder `cd dib`.
 - Create a virtual environment or install directly to you machine with `pip install -e ".[dev,test]"`
-- Try the command: `dib --version`
+- `dib --version`
+
+### Pip
+
+- `pip install dibrowse`
+- `dib --version`
 
 ## Usage
 
